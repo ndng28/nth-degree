@@ -1,29 +1,66 @@
 ---
-title: "Hello, World"
-description: "First post on the nth degree. Why I'm writing, what I'm building, and who this is for."
-pubDate: "2026-04-14"
+import Base from "../layouts/Base.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  pubDate?: string;
+}
+
+const { title, description, pubDate } = Astro.props;
 ---
 
-I spent the better part of a year building a homelab before I admitted what it actually was: a portfolio.
+<Base title={title} description={description} pubDate={pubDate}>
+  <p>
+    I spent the better part of a year building a homelab before I admitted what
+    it actually was: a portfolio.
+  </p>
 
-Not a homelab. Not a "lab environment." A portfolio — the kind of thing that shows I can actually build the stuff I claim to know.
+  <p>
+    Not a homelab. Not a &ldquo;lab environment.&rdquo; A portfolio — the kind of
+    thing that shows I can actually build the stuff I claim to know.
+  </p>
 
-## Why a blog
+  <h2>Why a blog</h2>
 
-Every job description for a privacy engineer or compliance role I want asks for "experience." I don't have that. What I have is a homelab that touches GDPR-adjacent problems — data residency, retention, subject access requests — and the ability to document what I built and why.
+  <p>
+    Every job description for a privacy engineer or compliance role I want asks
+    for &ldquo;experience.&rdquo; I don&rsquo;t have that. What I have is a homelab
+    that touches GDPR-adjacent problems — data residency, retention, subject
+    access requests — and the ability to document what I built and why.
+  </p>
 
-So this is me building in public. The homelab will stay behind a Tailscale mesh, but the thinking gets published.
+  <p>
+    So this is me building in public. The homelab will stay behind a Tailscale
+    mesh, but the thinking gets published.
+  </p>
 
-## What this is
+  <h2>What this is</h2>
 
-The nth degree is about engineering depth — the kind you get from running production infrastructure, even if that production is one person's cloud-native homelab. I'm interested in:
+  <p>
+    The nth degree is about engineering depth — the kind you get from running
+    production infrastructure, even if that production is one person&rsquo;s
+    cloud-native homelab. I&rsquo;m interested in:
+  </p>
 
-- Compliance as engineering, not paperwork
-- Infrastructure that respects the data it handles
-- Building things that scale to "fifty-person SaaS" even if they never will
+  <ul>
+    <li>Compliance as engineering, not paperwork</li>
+    <li>Infrastructure that respects the data it handles</li>
+    <li>
+      Building things that scale to &ldquo;fifty-person SaaS&rdquo; even if they
+      never will
+    </li>
+  </ul>
 
-No list of takeaways. No conclusion that restates the intro. Just posts that try to be worth reading.
+  <p>
+    No list of takeaways. No conclusion that restates the intro. Just posts that
+    try to be worth reading.
+  </p>
 
-## First
+  <h2>First</h2>
 
-If you're here from LinkedIn — hi. Drop me a message if anything here is useful or wrong. I want to know both.
+  <p>
+    If you&rsquo;re here from LinkedIn — hi. Drop me a message if anything here
+    is useful or wrong. I want to know both.
+  </p>
+</Base>

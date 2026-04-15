@@ -1,0 +1,161 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  pubDate?: string;
+}
+
+const {
+  title,
+  description = "Engineering depth from a homelab portfolio",
+  pubDate,
+} = Astro.props;
+
+const formattedDate = pubDate
+  ? new Date(pubDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1a1a1a;
+        --border: #2a2a2a;
+        --text: #e8e8e8;
+        --muted: #888;
+        --accent: #6eb5ff;
+        --link: #a8c6e8;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Geist", "Söhne", ui-sans-serif, system-ui, sans-serif;
+        line-height: 1.7;
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      header h1 a {
+        color: var(--text);
+        font-size: 1.5rem;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+
+      header h1 a:hover {
+        text-decoration: none;
+        opacity: 0.8;
+      }
+
+      header .subtitle {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      time {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      article {
+        max-width: 100%;
+      }
+
+      h2 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin: 2rem 0 1rem;
+        letter-spacing: -0.01em;
+      }
+
+      p {
+        margin-bottom: 1.25rem;
+      }
+
+      ul,
+      ol {
+        margin: 1rem 0 1rem 1.5rem;
+      }
+
+      li {
+        margin-bottom: 0.4rem;
+      }
+
+      blockquote {
+        border-left: 2px solid var(--accent);
+        padding-left: 1rem;
+        color: var(--muted);
+        margin: 1.5rem 0;
+      }
+
+      code {
+        font-family: "Söhne Mono", ui-monospace, monospace;
+        font-size: 0.875em;
+        background: var(--surface);
+        padding: 0.15em 0.4em;
+        border-radius: 3px;
+      }
+
+      footer {
+        margin-top: 4rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">nth degree</a></h1>
+      <p class="subtitle">Engineering depth from a homelab portfolio</p>
+    </header>
+
+    <article>
+      <p class="pub-date">
+        {formattedDate && <time datetime={pubDate}>{formattedDate}</time>}
+      </p>
+      <slot />
+    </article>
+
+    <footer>
+      <a href="https://ddght.net">ddght.net</a>
+    </footer>
+  </body>
+</html>
