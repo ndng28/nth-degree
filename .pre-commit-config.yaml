@@ -1,0 +1,21 @@
+# Pre-commit hooks for blog content
+repos:
+  # markdownlint
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.48.0
+    hooks:
+      - id: markdownlint
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+
+  # Detect private keys — safety
+  - repo: https://github.com/TommyAuger/pre-commit-check-private-key
+    rev: v1.0.0
+    hooks:
+      - id: check-private-key

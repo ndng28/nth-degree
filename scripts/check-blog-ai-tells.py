@@ -1,197 +1,205 @@
 #!/usr/bin/env python3
-"""
-Blog Post AI Tells Checker — pre-commit hook
-==============================================
-Checks staged markdown files for common AI writing patterns.
-Based on: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+"""Detect AI-written content patterns in blog posts.
+
+Blocks commit if AI tells are found. Designed for pre-commit hook use.
 
 Usage:
-    python3 check-blog-ai-tells.py file1.md file2.md ...
+    python3 check-blog-ai-tells.py [install|--no-install] [paths...]
 
-Exit codes:
-    0 = clean, proceed with commit
-    1 = AI tells found, commit blocked
-    2 = usage error
+With no args: scans all staged .md/.astro/.mdx files.
+With 'install' arg: symlinks this script as .git/hooks/pre-commit.
+With paths: scans those specific files.
 """
 
-import sys
-import re
 import os
-
-# Vague filler phrases — AI reaches for these instead of specific claims
-VAGUE_FILLER = [
-    (r"\bplays a role in\b", "vague: 'plays a role in' — be specific"),
-    (r"\bcontributes to\b", "vague: 'contributes to' — be specific"),
-    (r"\benduring legacy of\b", "AI tell: thesaurus phrase 'enduring legacy'"),
-    (r"\bthe transformative power of\b", "AI tell: 'transformative power' — AI Wikipedia prose"),
-    (r"\bthe significance of\b", "vague: 'significance of' — what specifically?"),
-    (r"\benhances the (?!quality|performance|efficiency)\b", "vague: 'enhances' — be specific"),
-    (r"\bfacilitates\b", "AI tell: 'facilitates' is formal AI-speak"),
-    (r"\bleverages\b", "AI tell: 'leverages' is corporate AI-speak"),
-    (r"\butilizes\b", "AI tell: 'utilizes' — use 'uses'"),
-    (r"\bvital for\b", "vague: 'vital for' — why specifically?"),
-    (r"\bimportant for\b", "vague: 'important for' — what is the actual consequence?"),
-    (r"\bcrucial for\b", "vague: 'crucial for' — what happens without it?"),
-    (r"\ba diverse range of\b", "AI tell: 'a diverse range of' — thesaurus filler"),
-    (r"\ba wide range of\b", "AI tell: 'a wide range of' — be specific"),
-    (r"\bvarious (factors|aspects|elements)\b", "vague: 'various factors' — name them"),
-    (r"\bthe ecosystem\b", "overused: 'ecosystem' is AI tech-blog filler"),
-    (r"\bcuts across\b", "AI tell: 'cuts across' — what does this actually mean?"),
-    (r"\bdelves into\b", "AI tell: 'delves into' is AI article opener"),
-    (r"\bnavigates the\b", "AI tell: 'navigates the' — be direct"),
-    (r"\bencompasses\b", "AI tell: 'encompasses' is formal AI prose"),
-    (r"\bserves as a\b", "AI tell: 'serves as a' — what is it?"),
-    (r"\bin the realm of\b", "AI tell: 'in the realm of' — just say the domain"),
-    (r"\bpaves the way for\b", "cliché: 'paves the way for' — be specific"),
-    (r"\bstands as a\b", "AI tell: 'stands as a' — what is it?"),
-    (r"\bexists as a\b", "AI tell: 'exists as a'"),
-    (r"\bacts as a\b", "AI tell: 'acts as a' — what does it actually do?"),
-    (r"\bdynamic\b", "AI tell: 'dynamic' overused for places/economies"),
-    (r"\bvibrant\b", "AI tell: 'vibrant' is AI place description"),
-    (r"\bbustling\b", "AI tell: 'bustling' is AI prose"),
-    (r"\bpicturesque\b", "AI tell: 'picturesque' is AI travel writing"),
-    (r"\bbreathtaking\b", "AI tell: 'breathtaking' is thesaurus AI"),
-    (r"\bcaptivates\b", "AI tell: 'captivates' is AI prose"),
-    (r"\bleverages cutting-edge\b", "AI tell: 'cutting-edge' is marketing AI"),
-    (r"\bstate-of-the-art\b", "AI tell: 'state-of-the-art' is marketing speak"),
-    (r"\binnovative\b", "AI tell: 'innovative' is unsubstantiated claim"),
-    (r"\bpioneering\b", "AI tell: 'pioneering' — can you prove this?"),
-    (r"\bgame-changer\b", "AI tell: 'game-changer' — be specific"),
-    (r"\b groundbreaking \b", "AI tell: 'groundbreaking'"),
-    (r"\bfostering\b", "AI tell: 'fostering' — use 'building' or 'encouraging'"),
-    (r"\bgiven the fact that\b", "AI tell: 'given the fact that' → 'because'"),
-    (r"\bdue to the fact that\b", "AI tell: 'due to the fact that' → 'because'"),
-    (r"\bin light of the fact that\b", "AI tell: 'in light of the fact that' → 'because'"),
-]
-
-# Formulaic transitions — AI always signals structure
-FORMULAIC = [
-    (r"^\s*First[,\s]", "formulaic: 'First,' opener — use something fresher"),
-    (r"^\s*Second[,\s]", "formulaic: 'Second,' opener"),
-    (r"^\s*Third[,\s]", "formulaic: 'Third,' opener"),
-    (r"^\s*Finally[,\s]", "formulaic: 'Finally,' opener"),
-    (r"\bIn conclusion\b", "formulaic: 'In conclusion' — just end"),
-    (r"\bTo summarize\b", "formulaic: 'To summarize' — just summarize"),
-    (r"\bIn summary\b", "formulaic: 'In summary'"),
-    (r"\bIt is worth noting that\b", "AI tell: 'It is worth noting that' — just say it"),
-    (r"\bIt is important to note that\b", "AI tell: 'It is important to note that' — just say it"),
-    (r"\bIt should be noted that\b", "AI tell: 'It should be noted that'"),
-    (r"\bAdditionally,\b", "overused transition: 'Additionally,' — vary sentence openers"),
-    (r"\bFurthermore,\b", "overused: 'Furthermore,'"),
-    (r"\bMoreover,\b", "overused: 'Moreover,'"),
-    (r"\bThis (technique|method|approach|framework)\b", "formulaic: 'This technique' at paragraph start"),
-    (r"\bThis (article|post|section)\b", "formulaic: 'This article' at start"),
-    (r"\bWith that said\b", "formulaic transition"),
-    (r"\bThat being said\b", "formulaic transition"),
-    (r"\bHaving said that\b", "formulaic transition"),
-]
-
-# Hedging without value
-HEDGING = [
-    (r"\bit is possible that\b", "hedging: 'it is possible that' — how likely?"),
-    (r"\bmay potentially\b", "hedging: double modal"),
-    (r"\bmight potentially\b", "hedging: double modal"),
-    (r"\bappears to be\b", "hedging: 'appears to be' — what is it?"),
-    (r"\bseems to\b", "hedging: 'seems to' — what does the evidence show?"),
-    (r"\bsuggests that\b", "hedging: 'suggests that' — what is the evidence?"),
-    (r"\bwould seem to\b", "hedging: 'would seem to'"),
-    (r"\bcan be seen as\b", "hedging: 'can be seen as' — say what it is"),
-    (r"\bmay be considered\b", "hedging: 'may be considered'"),
-    (r"\ba range of\b", "hedging: 'a range of' — what range specifically?"),
-    (r"\bto some extent\b", "hedging: 'to some extent' — how much?"),
-    (r"\bin some cases\b", "hedging: 'in some cases' — which cases?"),
-    (r"\bnotably\b", "overuse: 'notably' signals AI emphasis"),
-    (r"\bparticularly\b", "overuse: 'particularly' signals AI emphasis"),
-    (r"\bespecially\b", "overuse: 'especially' signals AI emphasis"),
-]
-
-# Passive voice — AI hides who does what
-PASSIVE = [
-    (r"\bit was determined that\b", "passive: 'it was determined that'"),
-    (r"\bit has been shown that\b", "passive: 'it has been shown that'"),
-    (r"\bit can be seen that\b", "passive: 'it can be seen that'"),
-    (r"\bis being used to\b", "passive: 'is being used to'"),
-    (r"\bwas developed by\b", "passive: 'was developed by' — who?"),
-    (r"\bhas been developed\b", "passive: 'has been developed' — by whom?"),
-    (r"\bwas created by\b", "passive: 'was created by' — who?"),
-    (r"\bhas been implemented\b", "passive: 'has been implemented' — by whom?"),
-]
-
-ALL_PATTERNS = [
-    ("VAGUE FILLER", VAGUE_FILLER),
-    ("FORMULAIC TRANSITION", FORMULAIC),
-    ("HEDGING", HEDGING),
-    ("PASSIVE VOICE", PASSIVE),
-]
+import re
+import sys
 
 
-def check_file(filepath: str) -> list[tuple[str, str, str, int]]:
-    """Check a file for AI tells. Returns list of (category, pattern, line, line_num)."""
-    if not os.path.exists(filepath):
+PATTERNS = {
+    "VAGUE_FILLER": [
+        r"\bplays a role in\b",
+        r"\bcrucial for\b",
+        r"\bessential for\b",
+        r"\bvital for\b",
+        r"\bsignificant milestone\b",
+        r"\beverlasting impact\b",
+        r"\btimeless appeal\b",
+        r"\benduring legacy\b",
+        r"\bfoundation for\b",
+        r"\bpillar of\b",
+        r"\benhances?\b",
+        r"\bdelves? into\b",
+        r"\bembarks? on\b",
+        r"\bembark on a (journey|quest|adventure)\b",
+        r"\btrek through\b",
+        r"\bleverages?\b",
+        r"\bempowers?\b",
+        r"\bspearheads?\b",
+    ],
+    "THESAURUS_PROSE": [
+        r"\bvibrant\b",
+        r"\bbustling\b",
+        r"\bbreathtaking\b",
+        r"\bcaptivates?\b",
+        r"\billustrious\b",
+        r"\brenowned\b",
+        r"\bprofound impact\b",
+        r"\bsuperlative\b",
+        r"\bunparalleled\b",
+        r"\bmultifaceted\b",
+        r"\bintricately (crafted|designed|woven)\b",
+        r"\bexpansive\b",
+        r"\bencompassing\b",
+        r"\bsignificance\b",
+        r"\bpinnacle\b",
+    ],
+    "FORMULAIC_TRANSITIONS": [
+        r"\bFirst and foremost\b",
+        r"\bSecondly\b",
+        r"\bIn conclusion\b",
+        r"\bAdditionally\b",
+        r"\bIn summary\b",
+        r"\bFurthermore\b",
+        r"\bMoreover\b",
+        r"\bIn other words\b",
+        r"\bThat being said\b",
+        r"\bHaving said that\b",
+        r"\bIt is worth noting\b",
+        r"\bIt is important to note\b",
+        r"\bTo that end\b",
+        r"\bTo this end\b",
+        r"\bat the end of the day\b",
+        r"\ball things considered\b",
+        r"\btake a dive\b",
+        r"\btakes? a deep dive\b",
+        r"\bdive (deep|into)\b",
+    ],
+    "HEDGING_WITHOUT_VALUE": [
+        r"\bseems? to\b",
+        r"\bsuggests? that\b",
+        r"\bmay potentially\b",
+        r"\bit appears that\b",
+        r"\bone might say\b",
+        r"\boftentimes\b",
+        r"\boften times\b",
+        r"\bbear? witness\b",
+        r"\bserves? as a\b",
+        r"\bcan be (seen as|considered|described as)\b",
+        r"\bit could be argued\b",
+    ],
+    "PASSIVE_VOICE": [
+        r"\bit was determined that\b",
+        r"\bhas been developed by\b",
+        r"\bcan be seen as\b",
+        r"\bit was concluded that\b",
+        r"\bwas (developed|created|built) by\b",
+        r"\bis (being )?developed\b",
+        r"\bhas been (shown|demonstrated|proven)\b",
+        r"\bis (widely |generally )?considered\b",
+        r"\bis (often |frequently )?referred to as\b",
+        r"\bis (typically |commonly )?used (for|as|in)\b",
+        r"\bhas (been )?widely (been )?adopted\b",
+    ],
+}
+
+EXTS = (".md", ".mdx", ".astro")
+
+
+def scan_file(path):
+    """Scan a single file for AI tells. Returns list of (line, category, match)."""
+    if not os.path.isfile(path):
+        return []
+    if not path.endswith(EXTS):
+        return []
+    try:
+        lines = open(path, "r", encoding="utf-8", errors="replace").readlines()
+    except Exception:
         return []
 
-    if filepath.endswith(".md"):
-        # Also check .astro files (Astro markdown components)
-        pass
+    hits = []
+    for lineno, line in enumerate(lines, 1):
+        for category, patterns in PATTERNS.items():
+            for pat in patterns:
+                if re.search(pat, line, re.IGNORECASE):
+                    match = re.search(pat, line, re.IGNORECASE).group()
+                    hits.append((lineno, category, match.strip()))
+    return hits
 
-    issues = []
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
-            # Skip code blocks
-            if "```" in line:
-                continue
-            for category, pattern_list in ALL_PATTERNS:
-                for pattern, description in pattern_list:
-                    m = re.search(pattern, line, re.IGNORECASE)
-                    if m:
-                        issues.append((category, description, line.strip(), line_num))
-                        break  # one issue per category per line
-    return issues
+
+def scan_paths(paths):
+    """Scan a list of file paths. Returns dict of {path: [(line, cat, match), ...]}."""
+    results = {}
+    for p in paths:
+        hits = scan_file(p)
+        if hits:
+            results[p] = hits
+    return results
+
+
+def install_hook():
+    """Symlink this script as .git/hooks/pre-commit."""
+    script = os.path.realpath(__file__)
+    hook_dir = os.path.join(os.getcwd(), ".git", "hooks")
+    hook_path = os.path.join(hook_dir, "pre-commit")
+    os.makedirs(hook_dir, exist_ok=True)
+    if os.path.islink(hook_path):
+        os.remove(hook_path)
+    elif os.path.isfile(hook_path):
+        print(f"WARNING: {hook_path} already exists as a file — not installing hook")
+        return
+    os.symlink(script, hook_path)
+    print(f"Installed pre-commit hook: {hook_path}")
+    print("AI tells check will run on every commit.")
+
+
+def get_staged_files():
+    """Return list of staged .md/.mdx/.astro files via git."""
+    import subprocess
+    try:
+        out = subprocess.check_output(
+            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+            text=True,
+        )
+        return [f.strip() for f in out.splitlines() if f.endswith(EXTS)]
+    except subprocess.CalledProcessError:
+        return []
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: check-blog-ai-tells.py <file1> [file2 ...]")
-        sys.exit(2)
+    args = sys.argv[1:]
 
-    # Get staged files from git if no args (hook mode)
-    files = sys.argv[1:]
+    # Handle install early (before file-scanning logic)
+    if args and args[0] == "install":
+        install_hook()
+        return
 
-    all_issues = []
-    for filepath in files:
-        # Only check markdown and astro content files
-        if not (filepath.endswith(".md") or filepath.endswith(".astro")):
-            continue
-        issues = check_file(filepath)
-        if issues:
-            all_issues.append((filepath, issues))
+    # Determine which files to scan
+    if len(args) > 0 and args[0] == "--no-install":
+        # --no-install means skip the auto-scan (for explicit runs)
+        paths = args[1:] if len(args) > 1 else []
+    elif args:
+        paths = [a for a in args if os.path.isfile(a)]
+    else:
+        paths = get_staged_files()
 
-    if not all_issues:
-        print("✓ No AI tells detected — clean")
-        sys.exit(0)
+    if not paths:
+        print("No blog files staged or specified — allowing commit.")
+        return
 
-    # Print report
-    print("\n" + "=" * 60)
-    print("BLOG EDITOR: AI tells detected — commit blocked")
-    print("=" * 60)
+    results = scan_paths(paths)
+    if not results:
+        print(f"Scanned {len(paths)} file(s) — clean.")
+        return
 
-    for filepath, issues in all_issues:
-        print(f"\n{filepath}:")
-        seen = set()
-        for category, description, line, line_num in issues:
-            key = (category, line_num)
-            if key in seen:
-                continue
-            seen.add(key)
-            print(f"  L{line_num}: [{category}]")
-            print(f"    {description}")
-            print(f"    In:    {line[:80]}{'...' if len(line) > 80 else ''}")
-
-    print("\n" + "-" * 60)
-    print("Fix these before committing. If the pattern is a false positive,")
-    print("you can bypass with: git commit --no-verify")
-    print("(Use sparingly — the editor will notice.)")
-    print("-" * 60)
+    # Print report and exit with error
+    print("AI TELL(S) DETECTED — fix before committing:\n")
+    for path, hits in results.items():
+        print(f"  {path}")
+        for lineno, cat, match in hits:
+            print(f"    L{lineno}: [{cat}] \"{match}\"")
+    print("\nEdit the flagged lines, then re-stage and commit.")
+    print("Bypass: git commit --no-verify (use sparingly)")
     sys.exit(1)
 
 

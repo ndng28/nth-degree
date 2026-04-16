@@ -1,66 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
-
-interface Props {
-  title: string;
-  description?: string;
-  pubDate?: string;
-}
-
-const { title, description, pubDate } = Astro.props;
 ---
 
-<Base title={title} description={description} pubDate={pubDate}>
+<Base title="nth degree" description="Engineering depth from a homelab portfolio">
   <p>
-    I spent the better part of a year building a homelab before I admitted what
-    it actually was: a portfolio.
+    Writing about homelab infrastructure, self-hosting, and the engineering
+    decisions that go into running a hybrid cloud-native setup.
   </p>
-
   <p>
-    Not a homelab. Not a &ldquo;lab environment.&rdquo; A portfolio — the kind of
-    thing that shows I can actually build the stuff I claim to know.
-  </p>
-
-  <h2>Why a blog</h2>
-
-  <p>
-    Every job description for a privacy engineer or compliance role I want asks
-    for &ldquo;experience.&rdquo; I don&rsquo;t have that. What I have is a homelab
-    that touches GDPR-adjacent problems — data residency, retention, subject
-    access requests — and the ability to document what I built and why.
-  </p>
-
-  <p>
-    So this is me building in public. The homelab will stay behind a Tailscale
-    mesh, but the thinking gets published.
-  </p>
-
-  <h2>What this is</h2>
-
-  <p>
-    The nth degree is about engineering depth — the kind you get from running
-    production infrastructure, even if that production is one person&rsquo;s
-    cloud-native homelab. I&rsquo;m interested in:
-  </p>
-
-  <ul>
-    <li>Compliance as engineering, not paperwork</li>
-    <li>Infrastructure that respects the data it handles</li>
-    <li>
-      Building things that scale to &ldquo;fifty-person SaaS&rdquo; even if they
-      never will
-    </li>
-  </ul>
-
-  <p>
-    No list of takeaways. No conclusion that restates the intro. Just posts that
-    try to be worth reading.
-  </p>
-
-  <h2>First</h2>
-
-  <p>
-    If you&rsquo;re here from LinkedIn — hi. Drop me a message if anything here
-    is useful or wrong. I want to know both.
+    <a href="/blog">Read the blog</a>
   </p>
 </Base>
