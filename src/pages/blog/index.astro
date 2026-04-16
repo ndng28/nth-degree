@@ -8,7 +8,11 @@ const posts = allPosts
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
 
-<Base title="Blog" description="Engineering depth from a homelab portfolio">
+<Base title="Blog" description="All posts — engineering, leadership, technology">
+  <header style="margin-bottom: 2.5rem;">
+    <h1>Blog</h1>
+  </header>
+
   <section>
     {posts.length === 0 ? (
       <p style="color: var(--muted)">No posts yet — check back soon.</p>
@@ -24,8 +28,17 @@ const posts = allPosts
             <li>
               <a href={`/blog/${post.id}`} class="post-link">
                 <span class="post-title">{post.data.title}</span>
-                <time datetime={post.data.publishDate.toISOString()}>{date}</time>
               </a>
+              <div class="post-meta">
+                <time datetime={post.data.publishDate.toISOString()}>{date}</time>
+                {post.data.tags.length > 0 && (
+                  <div class="tags">
+                    {post.data.tags.map((tag) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <p class="post-desc">{post.data.description}</p>
             </li>
           );
@@ -43,13 +56,15 @@ const posts = allPosts
   }
 
   .post-list li {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .post-list li:last-child {
+    margin-bottom: 0;
   }
 
   .post-link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    display: block;
     text-decoration: none;
   }
 
@@ -65,13 +80,31 @@ const posts = allPosts
     letter-spacing: -0.01em;
   }
 
-  time {
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tag {
+    font-size: 0.7rem;
     color: var(--muted);
-    font-size: 0.8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.5em;
+    border-radius: 3px;
   }
 
   .post-desc {
-    margin-top: 0.4rem;
     color: var(--muted);
     font-size: 0.9rem;
     line-height: 1.5;
