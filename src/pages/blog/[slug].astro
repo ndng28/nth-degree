@@ -22,21 +22,90 @@ const { Content } = await render(post);
   pubDate={post.data.publishDate.toISOString()}
 >
   <article>
-    <p class="pub-date">
-      <time datetime={post.data.publishDate.toISOString()}>
-        {post.data.publishDate.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </time>
-    </p>
-    <Content />
+    <header>
+      <h1 style="font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 1rem;">
+        {post.data.title}
+      </h1>
+      <div class="post-meta">
+        <time datetime={post.data.publishDate.toISOString()}>
+          {post.data.publishDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </time>
+        {post.data.tags.length > 0 && (
+          <div class="tags">
+            {post.data.tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+
+    <div class="content">
+      <Content />
+    </div>
   </article>
 </Base>
 
 <style>
-  .pub-date {
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-bottom: 2rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tag {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.5em;
+    border-radius: 3px;
+  }
+
+  .content :global(h2) {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 2rem 0 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.25rem;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    margin: 1rem 0 1rem 1.5rem;
+  }
+
+  .content :global(li) {
+    margin-bottom: 0.4rem;
+  }
+
+  .content :global(blockquote) {
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+    color: var(--muted);
+    margin: 1.5rem 0;
+  }
+
+  .content :global(code) {
+    font-family: "Soehne Mono", ui-monospace, monospace;
+    font-size: 0.875em;
+    background: var(--surface);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
   }
 </style>

@@ -10,14 +10,6 @@ const {
   description = "Engineering depth from a homelab portfolio",
   pubDate,
 } = Astro.props;
-
-const formattedDate = pubDate
-  ? new Date(pubDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  : null;
 ---
 
 <!doctype html>
@@ -48,7 +40,7 @@ const formattedDate = pubDate
       body {
         background: var(--bg);
         color: var(--text);
-        font-family: "Geist", "Söhne", ui-sans-serif, system-ui, sans-serif;
+        font-family: "Geist", "Soehne", ui-sans-serif, system-ui, sans-serif;
         line-height: 1.7;
         max-width: 680px;
         margin: 0 auto;
@@ -64,28 +56,76 @@ const formattedDate = pubDate
         text-decoration: underline;
       }
 
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      nav .site-name {
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+      }
+
+      nav .site-name a {
+        color: var(--text);
+      }
+
+      nav .site-name a:hover {
+        text-decoration: none;
+        opacity: 0.8;
+      }
+
+      nav .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+
+      nav .nav-links a {
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+
+      nav .nav-links a:hover {
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      nav .nav-links a.active {
+        color: var(--text);
+      }
+
       header {
         margin-bottom: 3rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid var(--border);
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        letter-spacing: -0.02em;
       }
 
       header h1 a {
         color: var(--text);
-        font-size: 1.5rem;
-        font-weight: 500;
-        letter-spacing: -0.02em;
-        text-decoration: none;
-      }
-
-      header h1 a:hover {
-        text-decoration: none;
-        opacity: 0.8;
       }
 
       header .subtitle {
         color: var(--muted);
         font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+
+      header.hero {
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      header.hero h1 {
+        font-size: 1.75rem;
       }
 
       time {
@@ -102,6 +142,12 @@ const formattedDate = pubDate
         font-weight: 500;
         margin: 2rem 0 1rem;
         letter-spacing: -0.01em;
+      }
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 1.5rem 0 0.75rem;
       }
 
       p {
@@ -125,11 +171,35 @@ const formattedDate = pubDate
       }
 
       code {
-        font-family: "Söhne Mono", ui-monospace, monospace;
+        font-family: "Soehne Mono", ui-monospace, monospace;
         font-size: 0.875em;
         background: var(--surface);
         padding: 0.15em 0.4em;
         border-radius: 3px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .tag {
+        font-size: 0.75rem;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 0.15em 0.6em;
+        border-radius: 3px;
+      }
+
+      .post-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
       }
 
       footer {
@@ -142,20 +212,13 @@ const formattedDate = pubDate
     </style>
   </head>
   <body>
-    <header>
-      <h1><a href="/">nth degree</a></h1>
-      <p class="subtitle">Engineering depth from a homelab portfolio</p>
-    </header>
+    <nav>
+      <span class="site-name"><a href="/">nth degree</a></span>
+      <span class="nav-links">
+        <a href="/blog">Blog</a>
+      </span>
+    </nav>
 
-    <article>
-      <p class="pub-date">
-        {formattedDate && <time datetime={pubDate}>{formattedDate}</time>}
-      </p>
-      <slot />
-    </article>
-
-    <footer>
-      <a href="https://ddght.net">ddght.net</a>
-    </footer>
+    <slot />
   </body>
 </html>
