@@ -21,11 +21,9 @@ const { Content } = await render(post);
   description={post.data.description}
   pubDate={post.data.publishDate.toISOString()}
 >
-  <article>
-    <header style="margin-bottom: 2rem;">
-      <h1 style="font-size: 1.75rem; font-weight: 500; letter-spacing: -0.03em; margin-bottom: 0.75rem;">
-        {post.data.title}
-      </h1>
+  <div class="post-card">
+    <header>
+      <h1>{post.data.title}</h1>
       <div class="post-meta">
         <time datetime={post.data.publishDate.toISOString()}>
           {post.data.publishDate.toLocaleDateString("en-US", {
@@ -37,7 +35,7 @@ const { Content } = await render(post);
         {post.data.tags.length > 0 && (
           <div class="tags">
             {post.data.tags.map((tag) => (
-              <span class="tag">{tag}</span>
+              <a href={`/blog/tags/${tag}`} class="tag">{tag}</a>
             ))}
           </div>
         )}
@@ -47,7 +45,7 @@ const { Content } = await render(post);
     <div class="content">
       <Content />
     </div>
-  </article>
+  </div>
 </Base>
 
 <style>
@@ -72,9 +70,38 @@ const { Content } = await render(post);
     border: 1px solid var(--border);
     padding: 0.1em 0.5em;
     border-radius: 3px;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
   }
 
-  .content :global(h2) {
+  .tag:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .post-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .post-card header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-card h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+  }
+
+  .post-card .content :global(h2) {
     font-size: 1.1rem;
     font-weight: 500;
     margin: 2rem 0 1rem;

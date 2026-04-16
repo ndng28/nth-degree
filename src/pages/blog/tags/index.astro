@@ -1,0 +1,76 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../../layouts/Base.astro";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+
+// Collect all tags with counts
+const tagMap = new Map<string, number>();
+for (const post of allPosts) {
+  for (const tag of post.data.tags) {
+    tagMap.set(tag, (tagMap.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = Array.from(tagMap.entries())
+  .sort((a, b) => b[1] - a[1]); // Most-used first
+---
+
+<Base title="Tags" description="Browse posts by topic">
+  <header style="margin-bottom: 2.5rem;">
+    <h1>Tags</h1>
+  </header>
+
+  {tags.length === 0 ? (
+    <p style="color: var(--muted)">No tags yet.</p>
+  ) : (
+    <div class="tag-cloud">
+      {tags.map(([tag, count]) => (
+        <a href={`/blog/tags/${tag}`} class="tag-pill">
+          {tag}
+          <span class="tag-count">{count}</span>
+        </a>
+      ))}
+    </div>
+  )}
+
+  <p style="margin-top: 2rem;">
+    <a href="/blog" style="font-size: 0.875rem;">← All posts</a>
+  </p>
+</Base>
+
+<style>
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.4em 0.9em;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .tag-pill:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .tag-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.45em;
+    border-radius: 999px;
+  }
+</style>

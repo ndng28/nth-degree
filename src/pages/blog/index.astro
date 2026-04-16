@@ -34,7 +34,7 @@ const posts = allPosts
                 {post.data.tags.length > 0 && (
                   <div class="tags">
                     {post.data.tags.map((tag) => (
-                      <span class="tag">{tag}</span>
+                      <a href={`/blog/tags/${tag}`} class="tag">{tag}</a>
                     ))}
                   </div>
                 )}
@@ -57,10 +57,19 @@ const posts = allPosts
 
   .post-list li {
     margin-bottom: 3.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 1.5rem;
+    transition: border-color 0.2s;
   }
 
   .post-list li:last-child {
     margin-bottom: 0;
+  }
+
+  .post-list li:hover {
+    border-color: var(--accent);
   }
 
   .post-link {
@@ -102,6 +111,14 @@ const posts = allPosts
     border: 1px solid var(--border);
     padding: 0.1em 0.5em;
     border-radius: 3px;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tag:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    text-decoration: none;
   }
 
   .post-desc {
