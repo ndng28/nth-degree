@@ -20,19 +20,19 @@ const recent = posts[0];
     <p class="subtitle">Engineering depth from a homelab portfolio</p>
   </header>
 
-  <section style="margin-top: 3rem;">
-    <p style="color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">Latest</p>
-    <a href={`/blog/${recent.id}`} style="font-size: 1.15rem; font-weight: 500; display: block; margin-bottom: 0.35rem;">
+  <div class="latest-card">
+    <p class="section-label">Latest</p>
+    <a href={`/blog/${recent.id}`} class="latest-title">
       {recent.data.title}
     </a>
-    <p style="color: var(--muted); font-size: 0.8rem;">
+    <p class="latest-date">
       {recent.data.publishDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })}
     </p>
-  </section>
+  </div>
 
   {posts.length > 1 && (
     <section style="margin-top: 3rem;">

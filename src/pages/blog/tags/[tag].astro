@@ -1,0 +1,148 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../../layouts/Base.astro";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+
+  const tagSet = new Set<string>();
+  for (const post of allPosts) {
+    for (const tag of post.data.tags) tagSet.add(tag);
+  }
+
+  return Array.from(tagSet).map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: allPosts
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<Base title={`#${tag}`} description={`Posts tagged ${tag}`}>
+  <header style="margin-bottom: 2.5rem;">
+    <h1>#{tag}</h1>
+    <p style="color: var(--muted); font-size: 0.875rem; margin-top: 0.35rem;">
+      {posts.length} post{posts.length !== 1 ? "s" : ""}
+    </p>
+  </header>
+
+  {posts.length === 0 ? (
+    <p style="color: var(--muted)">No posts with this tag yet.</p>
+  ) : (
+    <ul class="post-list">
+      {posts.map((post) => {
+        const date = post.data.publishDate.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        return (
+          <li>
+            <a href={`/blog/${post.id}`} class="post-link">
+              <span class="post-title">{post.data.title}</span>
+            </a>
+            <div class="post-meta">
+              <time datetime={post.data.publishDate.toISOString()}>{date}</time>
+              <div class="tags">
+                {post.data.tags.map((t) => (
+                  <a href={`/blog/tags/${t}`} class="tag" data-active={t === tag ? "true" : "false"}>{t}</a>
+                ))}
+              </div>
+            </div>
+            <p class="post-desc">{post.data.description}</p>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  <p style="margin-top: 2rem;">
+    <a href="/blog/tags" style="font-size: 0.875rem;">← All tags</a>
+  </p>
+</Base>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .post-list li {
+    margin-bottom: 3.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .post-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .post-list li:hover {
+    border-color: var(--accent);
+  }
+
+  .post-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .post-link:hover {
+    text-decoration: none;
+    opacity: 0.8;
+  }
+
+  .post-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tag {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.5em;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tag:hover,
+  .tag[data-active="true"] {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .post-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+</style>
