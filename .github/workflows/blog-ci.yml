@@ -55,7 +55,7 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Run markdownlint
-        run: npx markdownlint "src/content/blog/**/*.md" --disable-rule MD033 MD034
+        run: npx markdownlint "src/content/blog/**/*.md"
 
   broken-links:
     name: Link Checker
