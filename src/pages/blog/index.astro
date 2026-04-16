@@ -61,7 +61,7 @@ const posts = allPosts
     border-radius: 6px;
     background: var(--surface);
     padding: 1.5rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
 
   .post-list li:last-child {
@@ -70,6 +70,8 @@ const posts = allPosts
 
   .post-list li:hover {
     border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(110, 181, 255, 0.08);
+    transform: translateY(-2px);
   }
 
   .post-link {
@@ -79,7 +81,7 @@ const posts = allPosts
 
   .post-link:hover {
     text-decoration: none;
-    opacity: 0.8;
+    opacity: 1;
   }
 
   .post-title {
