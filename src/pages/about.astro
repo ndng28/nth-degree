@@ -1,0 +1,45 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="About" description="About nth degree and the person behind it">
+  <header class="page-header">
+    <h1>About</h1>
+  </header>
+
+  <div class="content">
+    <p>
+      nth degree is a personal blog about infrastructure, networking, homelab engineering,
+      and systems thinking. Expect specifics over generalities — real configs, real problems,
+      real solutions.
+    </p>
+
+    <p>
+      Every setup here runs in a Proxmox cluster in my garage. The writing covers what I've
+      actually built, broken, and fixed: bare-metal networking, container orchestration,
+      monitoring stacks, storage, and the thousand small decisions that make a lab hum.
+    </p>
+
+    <h2>Stack</h2>
+    <ul>
+      <li><strong>Static site</strong> — Astro / TypeScript, deployed via Cloudflare Workers</li>
+      <li><strong>Hosting</strong> — Cloudflare edge network</li>
+      <li><strong>Source</strong> — GitHub, with pre-commit checks for quality and AI-tell detection</li>
+      <li><strong>No CSS frameworks, no JS in the browser</strong> — minimal footprint by design</li>
+    </ul>
+
+    <h2>Writing philosophy</h2>
+    <p>
+      Single ideas per post. No intro that restates the title. No bullet-point takeaways.
+      Prefer specifics: <q>Caddy with a Let's Encrypt TLS cert</q> over <q>good security.</q>
+      If you want fluff, this isn't the place.
+    </p>
+
+    <h2>Colophon</h2>
+    <p>
+      Typeset in <a href="https://rsms.me/inter/">Inter</a> with
+      <a href="https://www.jetbrains.com/lp/mono/">JetBrains Mono</a> for code.
+      Colors adapt to your system light/dark preference.
+    </p>
+  </div>
+</Base>
