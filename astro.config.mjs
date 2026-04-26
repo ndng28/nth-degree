@@ -5,6 +5,14 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   output: "static",
   site: "https://blog.ddght.net",
-  // Content collections validated at build time
-  // schema defined in src/content/config.ts
+  markdown: {
+    syntaxHighlight: "shiki",
+    shikiConfig: {
+      theme: {
+        dark: "github-dark-dimmed",
+        light: "github-light",
+      },
+      wrap: false,
+    },
+  },
 });

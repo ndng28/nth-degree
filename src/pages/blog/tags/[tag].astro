@@ -33,7 +33,7 @@ const { tag, posts } = Astro.props;
   </header>
 
   {posts.length === 0 ? (
-    <p style="color: var(--muted)">No posts with this tag yet.</p>
+    <p style="color: var(--text-muted)">No posts with this tag yet.</p>
   ) : (
     <div class="post-list">
       {posts.map((post) => {
@@ -74,7 +74,7 @@ const { tag, posts } = Astro.props;
 
   .post-card {
     display: block;
-    background: var(--surface);
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.75rem 2rem;
@@ -99,7 +99,7 @@ const { tag, posts } = Astro.props;
     font-size: 1.05rem;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: var(--text);
+    color: var(--text-body);
     margin-bottom: 0.35rem;
     transition: color 0.15s;
   }

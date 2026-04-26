@@ -21,7 +21,7 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
   </header>
 
   {tags.length === 0 ? (
-    <p style="color: var(--muted)">No tags yet.</p>
+    <p style="color: var(--text-muted)">No tags yet.</p>
   ) : (
     <div class="tag-cloud">
       {tags.map(([tag, count]) => (
@@ -47,8 +47,8 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
     gap: 0.4rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--text);
-    background: var(--surface);
+    color: var(--text-body);
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     padding: 0.35em 0.85em;
     border-radius: 999px;
@@ -66,7 +66,7 @@ const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
   .tag-count {
     font-size: 0.7rem;
     font-weight: 500;
-    color: var(--muted);
+    color: var(--text-muted);
     background: var(--bg);
     border: 1px solid var(--border);
     padding: 0.1em 0.45em;
