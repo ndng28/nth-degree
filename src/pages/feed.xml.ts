@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ site }) => {
   const feed = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>nth degree</title>
-  <subtitle>Engineering depth from a homelab portfolio</subtitle>
+  <subtitle>A homelab engineering blog</subtitle>
   <link href="${siteUrl}feed.xml" rel="self"/>
   <link href="${siteUrl}"/>
   <updated>${published[0]?.data.publishDate.toISOString() ?? new Date().toISOString()}</updated>
