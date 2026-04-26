@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from "astro:transitions";
+
 interface Props {
   title: string;
   description?: string;
@@ -36,6 +38,7 @@ function readingTime(text: string): string {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <ClientRouter fallback="swap" />
     <style>
       /* ── Fluid tokens ── */
       :root {
@@ -321,6 +324,26 @@ function readingTime(text: string): string {
         margin: var(--space-xl) 0;
         -webkit-overflow-scrolling: touch;
         position: relative;
+      }
+
+      /* Code block language label */
+      .content pre::before {
+        content: attr(data-language);
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .content pre:hover::before {
+        opacity: 0.7;
+        transition: opacity 0.2s;
       }
       .content pre code {
         font-family: var(--font-mono);
