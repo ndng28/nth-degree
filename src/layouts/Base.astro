@@ -39,6 +39,40 @@ function readingTime(text: string): string {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
     <ClientRouter fallback="swap" />
+    <style is:global>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html {
+        scroll-behavior: smooth;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text-body);
+        font-family: var(--font-body);
+        font-size: var(--text-ml);
+        line-height: var(--line-height-body);
+        min-height: 100vh;
+        position: relative;
+      }
+      a {
+        color: var(--text-body);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      a:hover { color: var(--accent); }
+      ::selection { background: var(--selection); }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
     <style>
       /* ── Fluid tokens ── */
       :root {
@@ -113,28 +147,7 @@ function readingTime(text: string): string {
         }
       }
 
-      /* ── Reduce motion ── */
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-
-      ::selection { background: var(--selection); }
-
-      html {
-        scroll-behavior: smooth;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
+      /* ── Scrollbar ── */
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb {
@@ -143,17 +156,6 @@ function readingTime(text: string): string {
       }
       ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 
-      body {
-        background: var(--bg);
-        color: var(--text-body);
-        font-family: var(--font-body);
-        font-size: var(--text-ml);
-        line-height: var(--line-height-body);
-        min-height: 100vh;
-        position: relative;
-      }
-
-      /* Subtle dot grid */
       body::before {
         content: '';
         position: fixed;
@@ -200,13 +202,6 @@ function readingTime(text: string): string {
           padding: 3rem 1.5rem 1.5rem;
         }
       }
-
-      a {
-        color: var(--text-body);
-        text-decoration: none;
-        transition: color 0.15s;
-      }
-      a:hover { color: var(--accent); }
 
       /* ── Nav ── */
       nav {
