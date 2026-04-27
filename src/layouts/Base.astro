@@ -202,11 +202,14 @@ function readingTime(text: string): string {
       }
 
       a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: opacity 0.15s;
+        color: var(--text-body);
+        text-decoration: underline;
+        text-decoration-color: var(--accent);
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+        transition: color 0.15s;
       }
-      a:hover { opacity: 0.85; text-decoration: underline; }
+      a:hover { color: var(--accent); }
 
       /* ── Nav ── */
       nav {
