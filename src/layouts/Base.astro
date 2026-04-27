@@ -203,13 +203,19 @@ function readingTime(text: string): string {
 
       a {
         color: var(--text-body);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      a:hover { color: var(--accent); }
+
+      /* Underline only for inline text links in article content */
+      .content a {
         text-decoration: underline;
         text-decoration-color: var(--accent);
         text-underline-offset: 3px;
         text-decoration-thickness: 1px;
-        transition: color 0.15s;
       }
-      a:hover { color: var(--accent); }
+      .content a:hover { text-decoration-color: var(--accent-hover); }
 
       /* ── Nav ── */
       nav {
