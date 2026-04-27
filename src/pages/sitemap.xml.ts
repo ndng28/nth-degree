@@ -13,6 +13,7 @@ export const GET: APIRoute = async ({ site }) => {
     { loc: "/", priority: "1.0" },
     { loc: "/blog", priority: "0.9" },
     { loc: "/about", priority: "0.7" },
+    { loc: "/weather", priority: "0.5" },
     { loc: "/blog/tags", priority: "0.6" },
   ];
 

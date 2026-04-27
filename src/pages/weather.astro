@@ -1,0 +1,220 @@
+---
+import Base from "../layouts/Base.astro";
+
+const endpoint =
+  "https://api.open-meteo.com/v1/forecast?latitude=33.56&longitude=-117.57&current=temperature_2m,apparent_temperature,weather_code,precipitation&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum&timezone=America%2FLos_Angeles&forecast_days=3";
+
+let weather: Record<string, any> | null = null;
+let error: string | null = null;
+
+try {
+  const res = await fetch(endpoint);
+  if (res.ok) weather = await res.json();
+  else error = `API returned ${res.status}`;
+} catch (e) {
+  error = String(e);
+}
+
+// WMO weather codes → short label
+const wmo: Record<number, string> = {
+  0: "Clear",
+  1: "Mostly clear",
+  2: "Partly cloudy",
+  3: "Overcast",
+  45: "Foggy",
+  48: "Foggy",
+  51: "Drizzle",
+  53: "Drizzle",
+  55: "Drizzle",
+  56: "Freezing drizzle",
+  57: "Freezing drizzle",
+  61: "Rain",
+  63: "Rain",
+  65: "Rain",
+  66: "Freezing rain",
+  67: "Freezing rain",
+  71: "Snow",
+  73: "Snow",
+  75: "Snow",
+  77: "Snow grains",
+  80: "Rain showers",
+  81: "Rain showers",
+  82: "Rain showers",
+  85: "Snow showers",
+  86: "Snow showers",
+  95: "Thunderstorm",
+  96: "Thunderstorm",
+  99: "Thunderstorm",
+};
+
+function label(code: number): string {
+  return wmo[code] ?? `${code}`;
+}
+
+function dayName(iso: string): string {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "short" });
+}
+
+function shortDate(iso: string): string {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+---
+
+<Base title="Weather" description="Weather in Mission Viejo, CA">
+  <header class="page-header">
+    <h1>Weather</h1>
+    <p class="subtitle">Mission Viejo, CA</p>
+  </header>
+
+  {error && <p class="error">Could not load weather: {error}</p>}
+
+  {weather && (
+    <>
+      <section class="current">
+        <div class="current-temp">
+          <span class="temp-value">{Math.round(weather.current.temperature_2m)}°</span>
+          <div class="current-details">
+            <span class="current-label">{label(weather.current.weather_code)}</span>
+            <span class="current-feel">Feels like {Math.round(weather.current.apparent_temperature)}°</span>
+            {weather.current.precipitation > 0 && (
+              <span class="current-precip">Precip: {weather.current.precipitation} mm</span>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section class="forecast">
+        <h2>3-day forecast</h2>
+        <div class="days">
+          {weather.daily.time.map((date: string, i: number) => (
+            <div class="day-card">
+              <span class="day-name">{i === 0 ? "Today" : dayName(date)}</span>
+              <span class="day-date">{shortDate(date)}</span>
+              <span class="day-desc">{label(weather.daily.weather_code[i])}</span>
+              <span class="day-high">{Math.round(weather.daily.temperature_2m_max[i])}°</span>
+              <span class="day-low">{Math.round(weather.daily.temperature_2m_min[i])}°</span>
+              {weather.daily.precipitation_sum[i] > 0 && (
+                <span class="day-precip">{weather.daily.precipitation_sum[i]} mm</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <p class="meta">Updated at build time via <a href="https://open-meteo.com/">Open-Meteo</a>.</p>
+    </>
+  )}
+</Base>
+
+<style>
+  .error {
+    color: var(--accent);
+    font-size: var(--text-sm);
+  }
+
+  .current {
+    margin-bottom: 2.5rem;
+  }
+
+  .current-temp {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .temp-value {
+    font-size: 4rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .current-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .current-label {
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+
+  .current-feel,
+  .current-precip {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .forecast h2 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .days {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .day-card {
+    flex: 1;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .day-name {
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+
+  .day-date {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .day-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+
+  .day-high {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .day-low {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .day-precip {
+    font-size: var(--text-xs);
+    color: var(--accent);
+    margin-top: 0.25rem;
+  }
+
+  .meta {
+    margin-top: 2rem;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .days {
+      flex-direction: column;
+    }
+  }
+</style>
