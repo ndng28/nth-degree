@@ -19,7 +19,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "wrangler": "^4.81.1"
+    "wrangler": "^4.103.0"
   },
   "overrides": {
     "vite": "^7"
